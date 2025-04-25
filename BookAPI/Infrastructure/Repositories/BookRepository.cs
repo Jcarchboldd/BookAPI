@@ -41,6 +41,7 @@ public class BookRepository(BookDbContext context) : IBookRepository
         var existingBook = await context.Books.FindAsync(id);
         if (existingBook is null)
         {
+            //TODO: Replace with custom NotFoundException
             throw new Exception();
         }
         

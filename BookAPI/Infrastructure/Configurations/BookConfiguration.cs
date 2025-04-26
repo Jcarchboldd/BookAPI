@@ -7,6 +7,9 @@ public class BookConfiguration : IEntityTypeConfiguration<Book>
         builder.ToTable("Books");
         
         builder.HasKey(b => b.Id);
+
+        builder.Property(b => b.Id)
+            .ValueGeneratedOnAdd();
         
         builder.Property(b => b.Title)
             .IsRequired()

@@ -1,31 +1,40 @@
-using BookAPI.Contracts.Books;
+using Mapster;
 
 namespace BookAPI.Services;
 
-public class BookService : IBookService
+public class BookService(IUnitOfWork unitOfWork) : IBookService
 {
-    public Task<IEnumerable<BookResponse>> GetAllBooksAsync()
+    public async Task<IEnumerable<BookResponse>> GetAllBooksAsync()
     {
-        throw new NotImplementedException();
+        var result = await unitOfWork.BookRepository.GetAllBooksAsync();
+        return result.Adapt<IEnumerable<BookResponse>>();
     }
 
-    public Task<BookResponse?> GetBookByIdAsync(Guid id)
+    public async Task<BookResponse?> GetBookByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var result = await unitOfWork.BookRepository.GetBookByIdAsync(id);
+        return result.Adapt<BookResponse>();
     }
 
-    public Task CreateBookAsync(CreateBookRequest book)
+    public async Task<Guid> CreateBookAsync(CreateBookRequest book)
     {
-        throw new NotImplementedException();
+        var newBook = book.Adapt<Book>();
+        await unitOfWork.BookRepository.CreateBookAsync(newBook);
+        await unitOfWork.SaveAsync();
+        
+        return newBook.Id;
     }
 
-    public Task UpdateBookAsync(UpdateBookRequest book)
+    public async Task UpdateBookAsync(UpdateBookRequest book)
     {
-        throw new NotImplementedException();
+        var updatedBook = book.Adapt<Book>();
+        await unitOfWork.BookRepository.UpdateBookAsync(updatedBook);
+        await unitOfWork.SaveAsync();
     }
 
-    public Task DeleteBookAsync(Guid id)
+    public async Task DeleteBookAsync(Guid id)
     {
-        throw new NotImplementedException();
+        await unitOfWork.BookRepository.DeleteBookAsync(id);
+        await unitOfWork.SaveAsync();
     }
 }

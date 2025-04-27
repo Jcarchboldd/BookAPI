@@ -3,3 +3,7 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using BookAPI.Infrastructure.Repositories;
 global using BookAPI.Contracts.Reviews;
+global using BookAPI.Contracts.Books;
+global using BookAPI.Infrastructure.Data;
+global using BookAPI.Services;
+global using Microsoft.AspNetCore.Mvc;

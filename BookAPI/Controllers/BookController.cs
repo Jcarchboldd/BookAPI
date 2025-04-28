@@ -30,7 +30,7 @@ public class BookController(IBookService bookService) : ControllerBase
             nameof(GetBookByIdAsync), 
             controllerName: null, 
             routeValues: new { id = bookId }, 
-            value: book
+            value: null
         );
 
     }

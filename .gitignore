@@ -1,5 +1,21 @@
+# Build artifacts
 bin/
 obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
+
+# NuGet packages
+packages/
+
+# Rider
+*.iml
+.idea/
+*.DotSettings.user
+
+# ReSharper
+_ReSharper.Caches/
+
+# VS Code
+.vscode/
+
+# User-specific files
+*.user
+

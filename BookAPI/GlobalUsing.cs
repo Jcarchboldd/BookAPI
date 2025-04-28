@@ -7,3 +7,4 @@ global using BookAPI.Contracts.Books;
 global using BookAPI.Infrastructure.Data;
 global using BookAPI.Services;
 global using Microsoft.AspNetCore.Mvc;
+global using Mapster;

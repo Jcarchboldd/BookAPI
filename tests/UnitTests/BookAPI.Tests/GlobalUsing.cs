@@ -1,0 +1,9 @@
+global using AutoFixture;
+global using AutoFixture.AutoFakeItEasy;
+global using BookAPI.Contracts.Books;
+global using BookAPI.Infrastructure.Data;
+global using BookAPI.Infrastructure.Models;
+global using BookAPI.Infrastructure.Repositories;
+global using BookAPI.Services;
+global using FakeItEasy;
+global using FluentAssertions;

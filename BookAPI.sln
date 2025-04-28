@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookAPI", "BookAPI\BookAPI.csproj", "{3E15B732-1E24-42F7-B05B-8DD770021393}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookAPI.Tests", "tests\UnitTests\BookAPI.Tests\BookAPI.Tests.csproj", "{A834127E-6AA1-436C-B13B-562E67776C75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{3E15B732-1E24-42F7-B05B-8DD770021393}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E15B732-1E24-42F7-B05B-8DD770021393}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E15B732-1E24-42F7-B05B-8DD770021393}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A834127E-6AA1-436C-B13B-562E67776C75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A834127E-6AA1-436C-B13B-562E67776C75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A834127E-6AA1-436C-B13B-562E67776C75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A834127E-6AA1-436C-B13B-562E67776C75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

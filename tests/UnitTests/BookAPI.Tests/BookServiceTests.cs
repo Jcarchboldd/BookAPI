@@ -105,6 +105,21 @@ public class BookServiceTests
     }
     
     [Fact]
+    public async Task UpdateBookAsync_BookNotFound_ThrowsNotFoundException()
+    {
+        // Arrange
+        var updateRequest = _fixture.Create<UpdateBookRequest>();
+        A.CallTo(() => _bookRepository.UpdateBookAsync(A<Book>._))
+            .Throws(new NotFoundException(nameof(Book), updateRequest.Id));
+
+        // Act
+        var act = async () => await _sut.UpdateBookAsync(updateRequest);
+
+        // Assert
+        await act.Should().ThrowAsync<NotFoundException>();
+    }
+    
+    [Fact]
     public async Task DeleteBookAsync_DeletesBookAndSaves()
     {
         // Arrange
@@ -116,6 +131,21 @@ public class BookServiceTests
         // Assert
         A.CallTo(() => _bookRepository.DeleteBookAsync(id)).MustHaveHappenedOnceExactly();
         A.CallTo(() => _unitOfWork.SaveAsync()).MustHaveHappenedOnceExactly();
+    }
+    
+    [Fact]
+    public async Task DeleteBookAsync_BookNotFound_ThrowsNotFoundException()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        A.CallTo(() => _bookRepository.DeleteBookAsync(id))
+            .Throws(new NotFoundException(nameof(Book), id));
+
+        // Act
+        var act = async () => await _sut.DeleteBookAsync(id);
+
+        // Assert
+        await act.Should().ThrowAsync<NotFoundException>();
     }
 }
 

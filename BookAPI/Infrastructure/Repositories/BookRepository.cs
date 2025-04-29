@@ -1,5 +1,3 @@
-using BookAPI.Infrastructure.Data;
-
 namespace BookAPI.Infrastructure.Repositories;
 
 public class BookRepository(BookDbContext context) : IBookRepository
@@ -29,8 +27,7 @@ public class BookRepository(BookDbContext context) : IBookRepository
         var existingBook = await context.Books.FindAsync(book.Id);
         if (existingBook is null)
         {
-            //TODO: Replace with custom NotFoundException
-            throw new Exception();
+            throw new NotFoundException(nameof(Book), book.Id);
         }
 
         context.Entry(existingBook).CurrentValues.SetValues(book);
@@ -41,8 +38,7 @@ public class BookRepository(BookDbContext context) : IBookRepository
         var existingBook = await context.Books.FindAsync(id);
         if (existingBook is null)
         {
-            //TODO: Replace with custom NotFoundException
-            throw new Exception();
+            throw new NotFoundException(nameof(Book), id);
         }
         
         context.Books.Remove(existingBook);

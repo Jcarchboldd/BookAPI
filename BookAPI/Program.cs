@@ -6,15 +6,20 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
 builder.Services.AddDbContext<BookDbContext>(options =>
 {
     options.UseSqlite(builder.Configuration.GetConnectionString("BooksContext"));
 });
+
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler(); 
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

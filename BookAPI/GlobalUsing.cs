@@ -8,3 +8,6 @@ global using BookAPI.Infrastructure.Data;
 global using BookAPI.Services;
 global using Microsoft.AspNetCore.Mvc;
 global using Mapster;
+global using BookAPI.Exceptions;
+global using Microsoft.AspNetCore.Diagnostics;
+global using FluentValidation;

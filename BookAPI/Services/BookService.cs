@@ -1,6 +1,6 @@
 namespace BookAPI.Services;
 
-public class BookService(IUnitOfWork unitOfWork) : IBookService
+public class BookService(IUnitOfWork unitOfWork, IValidator<CreateBookRequest> createValidator) : IBookService
 {
     public async Task<IEnumerable<BookResponse>> GetAllBooksAsync()
     {
@@ -16,6 +16,13 @@ public class BookService(IUnitOfWork unitOfWork) : IBookService
 
     public async Task<Guid> CreateBookAsync(CreateBookRequest book)
     {
+        var validationResult = await createValidator.ValidateAsync(book);
+        
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors);
+        }
+        
         var newBook = book.Adapt<Book>();
         await unitOfWork.BookRepository.CreateBookAsync(newBook);
         await unitOfWork.SaveAsync();

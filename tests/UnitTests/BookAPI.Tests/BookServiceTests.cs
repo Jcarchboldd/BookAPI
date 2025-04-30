@@ -1,3 +1,5 @@
+
+
 namespace BookAPI.Tests;
 
 public class BookServiceTests
@@ -6,7 +8,7 @@ public class BookServiceTests
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBookRepository _bookRepository;
     private readonly BookService _sut;
-    
+
     public BookServiceTests()
     {
         _fixture = new Fixture().Customize(new AutoFakeItEasyCustomization { ConfigureMembers = true });
@@ -19,10 +21,11 @@ public class BookServiceTests
 
         _unitOfWork = A.Fake<IUnitOfWork>();
         _bookRepository = A.Fake<IBookRepository>();
+        var createValidator = A.Fake<IValidator<CreateBookRequest>>();
 
         A.CallTo(() => _unitOfWork.BookRepository).Returns(_bookRepository);
 
-        _sut = new BookService(_unitOfWork);
+        _sut = new BookService(_unitOfWork, createValidator);
     }
     
     [Fact]

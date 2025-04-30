@@ -8,3 +8,4 @@ global using BookAPI.Services;
 global using FakeItEasy;
 global using FluentAssertions;
 global using BookAPI.Exceptions;
+global using FluentValidation;

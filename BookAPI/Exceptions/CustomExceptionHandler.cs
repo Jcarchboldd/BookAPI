@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.Options;
 
 namespace BookAPI.Exceptions;
 
@@ -8,37 +7,27 @@ public class CustomExceptionHandler(
     ILogger<CustomExceptionHandler> logger,
     ProblemDetailsFactory problemDetailsFactory) : IExceptionHandler
 {
+    private static readonly Dictionary<Type, (int StatusCode, string Title, LogLevel LogLevel)> ExceptionMap =
+        new()
+        {
+            { typeof(ValidationException), (StatusCodes.Status400BadRequest, "Validation Error", LogLevel.Warning) },
+            { typeof(BadRequestException), (StatusCodes.Status400BadRequest, "Bad Request", LogLevel.Warning) },
+            { typeof(NotFoundException),    (StatusCodes.Status404NotFound,  "Not Found", LogLevel.Information) },
+            { typeof(InternalServerException), (StatusCodes.Status500InternalServerError, "Internal Server Error", LogLevel.Error) }
+        };
+
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
-        logger.LogError(exception, "Unhandled exception occurred at {time}", DateTime.UtcNow);
+        var errorId = Guid.NewGuid().ToString();
 
-        var (title, detail, statusCode) = exception switch
-        {
-            ValidationException => (
-                "Validation Error",
-                exception.Message,
-                StatusCodes.Status400BadRequest
-            ),
-            BadRequestException => (
-                "Bad Request",
-                exception.Message,
-                StatusCodes.Status400BadRequest
-            ),
-            NotFoundException => (
-                "Not Found",
-                exception.Message,
-                StatusCodes.Status404NotFound
-            ),
-            InternalServerException => (
-                "Internal Server Error",
-                exception.Message,
-                StatusCodes.Status500InternalServerError),
-            _ => (
-                "Internal Server Error",
-                "An unexpected error occurred. Please try again later.",
-                StatusCodes.Status500InternalServerError
-            )
-        };
+        var (statusCode, title, logLevel) = ExceptionMap.TryGetValue(exception.GetType(), out var mapped)
+            ? mapped
+            : (StatusCodes.Status500InternalServerError, "Internal Server Error", LogLevel.Error);
+
+        // Use the exception message if safe, otherwise use a fallback
+        var detail = exception is ValidationException or BadRequestException or NotFoundException or InternalServerException
+            ? exception.Message
+            : "An unexpected error occurred. Please try again later.";
 
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/problem+json";
@@ -47,16 +36,23 @@ public class CustomExceptionHandler(
             context,
             statusCode: statusCode,
             title: title,
+            type: null, // Let factory use RFC link if available
             detail: detail,
             instance: context.Request.Path
         );
 
+        // Add extensions
         problemDetails.Extensions["traceId"] = Activity.Current?.Id ?? context.TraceIdentifier;
+        problemDetails.Extensions["errorId"] = errorId;
 
         if (exception is ValidationException validationException)
         {
             problemDetails.Extensions["validationErrors"] = validationException.Errors;
         }
+
+        logger.Log(logLevel, exception,
+            "Unhandled exception occurred. ErrorId: {ErrorId}, TraceId: {TraceId}",
+            errorId, context.TraceIdentifier);
 
         await context.Response.WriteAsJsonAsync(problemDetails, cancellationToken: cancellationToken);
         return true;

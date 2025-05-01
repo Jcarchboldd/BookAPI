@@ -1,60 +1,61 @@
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Options;
+
 namespace BookAPI.Exceptions;
 
-public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger) : IExceptionHandler
+public class CustomExceptionHandler(
+    ILogger<CustomExceptionHandler> logger,
+    ProblemDetailsFactory problemDetailsFactory) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
-        logger.LogError(
-            "Error Message: {exceptionMessage}, Time of occurrence {time}",
-            exception.Message, DateTime.UtcNow);
+        logger.LogError(exception, "Unhandled exception occurred at {time}", DateTime.UtcNow);
 
-        (string Detail, string Title, int StatusCode) details = exception switch
+        var (title, detail, statusCode) = exception switch
         {
-            InternalServerException =>
-            (
+            ValidationException => (
+                "Validation Error",
                 exception.Message,
-                exception.GetType().Name,
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError
+                StatusCodes.Status400BadRequest
             ),
-            ValidationException =>
-            (
+            BadRequestException => (
+                "Bad Request",
                 exception.Message,
-                exception.GetType().Name,
-                context.Response.StatusCode = StatusCodes.Status400BadRequest
+                StatusCodes.Status400BadRequest
             ),
-            BadRequestException =>
-            (
+            NotFoundException => (
+                "Not Found",
                 exception.Message,
-                exception.GetType().Name,
-                context.Response.StatusCode = StatusCodes.Status400BadRequest
+                StatusCodes.Status404NotFound
             ),
-            NotFoundException =>
-            (
+            InternalServerException => (
+                "Internal Server Error",
                 exception.Message,
-                exception.GetType().Name,
-                context.Response.StatusCode = StatusCodes.Status404NotFound
-            ),
-            _ =>
-            (
-                exception.Message,
-                exception.GetType().Name,
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError
+                StatusCodes.Status500InternalServerError),
+            _ => (
+                "Internal Server Error",
+                "An unexpected error occurred. Please try again later.",
+                StatusCodes.Status500InternalServerError
             )
         };
 
-        var problemDetails = new ProblemDetails
-        {
-            Title = details.Title,
-            Detail = details.Detail,
-            Status = details.StatusCode,
-            Instance = context.Request.Path
-        };
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/problem+json";
 
-        problemDetails.Extensions.Add("traceId", context.TraceIdentifier);
+        var problemDetails = problemDetailsFactory.CreateProblemDetails(
+            context,
+            statusCode: statusCode,
+            title: title,
+            detail: detail,
+            instance: context.Request.Path
+        );
+
+        problemDetails.Extensions["traceId"] = Activity.Current?.Id ?? context.TraceIdentifier;
 
         if (exception is ValidationException validationException)
         {
-            problemDetails.Extensions.Add("ValidationErrors", validationException.Errors);
+            problemDetails.Extensions["validationErrors"] = validationException.Errors;
         }
 
         await context.Response.WriteAsJsonAsync(problemDetails, cancellationToken: cancellationToken);

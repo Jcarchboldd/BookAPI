@@ -79,17 +79,16 @@ public class BookServiceTests
         // Arrange
         var createRequest = _fixture.Create<CreateBookRequest>();
 
-        // ✅ Properly typed fake validator
+        // Properly typed fake validator
         var fakeValidator = A.Fake<IValidator<CreateBookRequest>>();
         A.CallTo(() => fakeValidator.ValidateAsync(createRequest, A<CancellationToken>._))
             .Returns(new ValidationResult());
 
-        // ✅ Return the correct type
+        // Return the correct type
         var serviceProvider = A.Fake<IServiceProvider>();
         A.CallTo(() => serviceProvider.GetService(typeof(IValidator<CreateBookRequest>)))
             .Returns(fakeValidator);
-
-        // ✅ Inject that into the BookService
+        
         var sut = new BookService(_unitOfWork, serviceProvider);
 
         A.CallTo(() => _bookRepository.CreateBookAsync(A<Book>._))
@@ -97,7 +96,7 @@ public class BookServiceTests
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await sut.CreateBookAsync(createRequest); // ✅ No exception now
+        var result = await sut.CreateBookAsync(createRequest);
 
         // Assert
         result.Should().NotBeEmpty();

@@ -1,4 +1,4 @@
-
+using FluentValidation.Results;
 
 namespace BookAPI.Tests;
 
@@ -21,11 +21,11 @@ public class BookServiceTests
 
         _unitOfWork = A.Fake<IUnitOfWork>();
         _bookRepository = A.Fake<IBookRepository>();
-        var createValidator = A.Fake<IValidator<CreateBookRequest>>();
+        var serviceProvider = A.Fake<IServiceProvider>();
 
         A.CallTo(() => _unitOfWork.BookRepository).Returns(_bookRepository);
 
-        _sut = new BookService(_unitOfWork, createValidator);
+        _sut = new BookService(_unitOfWork, serviceProvider);
     }
     
     [Fact]
@@ -56,7 +56,7 @@ public class BookServiceTests
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(book.Id);
+        result.Id.Should().Be(book.Id);
     }
     
     [Fact]
@@ -79,16 +79,28 @@ public class BookServiceTests
         // Arrange
         var createRequest = _fixture.Create<CreateBookRequest>();
 
+        // ✅ Properly typed fake validator
+        var fakeValidator = A.Fake<IValidator<CreateBookRequest>>();
+        A.CallTo(() => fakeValidator.ValidateAsync(createRequest, A<CancellationToken>._))
+            .Returns(new ValidationResult());
+
+        // ✅ Return the correct type
+        var serviceProvider = A.Fake<IServiceProvider>();
+        A.CallTo(() => serviceProvider.GetService(typeof(IValidator<CreateBookRequest>)))
+            .Returns(fakeValidator);
+
+        // ✅ Inject that into the BookService
+        var sut = new BookService(_unitOfWork, serviceProvider);
+
         A.CallTo(() => _bookRepository.CreateBookAsync(A<Book>._))
             .Invokes((Book book) => book.Id = Guid.NewGuid())
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await _sut.CreateBookAsync(createRequest);
+        var result = await sut.CreateBookAsync(createRequest); // ✅ No exception now
 
         // Assert
         result.Should().NotBeEmpty();
-
         A.CallTo(() => _bookRepository.CreateBookAsync(A<Book>._)).MustHaveHappenedOnceExactly();
         A.CallTo(() => _unitOfWork.SaveAsync()).MustHaveHappenedOnceExactly();
     }

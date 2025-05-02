@@ -25,7 +25,7 @@ public class CustomExceptionHandler(
             : (StatusCodes.Status500InternalServerError, "Internal Server Error", LogLevel.Error);
 
         // Use the exception message if safe, otherwise use a fallback
-        var detail = exception is ValidationException or BadRequestException or NotFoundException or InternalServerException
+        var detail = exception is ValidationException or BadRequestException or NotFoundException
             ? exception.Message
             : "An unexpected error occurred. Please try again later.";
 
@@ -50,9 +50,19 @@ public class CustomExceptionHandler(
             problemDetails.Extensions["validationErrors"] = validationException.Errors;
         }
 
-        logger.Log(logLevel, exception,
-            "Unhandled exception occurred. ErrorId: {ErrorId}, TraceId: {TraceId}",
-            errorId, context.TraceIdentifier);
+        // Log extra internal details if present (InternalServerException)
+        if (exception is InternalServerException { Details: not null } ise)
+        {
+            logger.Log(logLevel, exception,
+                "Internal server error occurred. Details: {Details}, ErrorId: {ErrorId}, TraceId: {TraceId}",
+                ise.Details, errorId, context.TraceIdentifier);
+        }
+        else
+        {
+            logger.Log(logLevel, exception,
+                "Unhandled exception occurred. ErrorId: {ErrorId}, TraceId: {TraceId}",
+                errorId, context.TraceIdentifier);
+        }
 
         await context.Response.WriteAsJsonAsync(problemDetails, cancellationToken: cancellationToken);
         return true;

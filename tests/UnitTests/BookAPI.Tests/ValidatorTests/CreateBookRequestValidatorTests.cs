@@ -1,7 +1,6 @@
 using BookAPI.Services.Validators.BookValidators;
-using FluentValidation.TestHelper;
 
-namespace BookAPI.Tests;
+namespace BookAPI.Tests.ValidatorTests;
 
 public class CreateBookRequestValidatorTests
 {

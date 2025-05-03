@@ -80,14 +80,10 @@ public class BookServiceTests
         var createRequest = _fixture.Create<CreateBookRequest>();
 
         // Properly typed fake validator
-        var fakeValidator = A.Fake<IValidator<CreateBookRequest>>();
-        A.CallTo(() => fakeValidator.ValidateAsync(createRequest, A<CancellationToken>._))
-            .Returns(new ValidationResult());
-
+        var fakeValidator = GetFakeValidator(createRequest);
+        
         // Return the correct type
-        var serviceProvider = A.Fake<IServiceProvider>();
-        A.CallTo(() => serviceProvider.GetService(typeof(IValidator<CreateBookRequest>)))
-            .Returns(fakeValidator);
+        var serviceProvider = GetServiceProviderWithValidator(fakeValidator);
         
         var sut = new BookService(_unitOfWork, serviceProvider);
 
@@ -110,8 +106,16 @@ public class BookServiceTests
         // Arrange
         var updateRequest = _fixture.Create<UpdateBookRequest>();
 
+        // Fake validator for UpdateBookRequest
+        var fakeValidator = GetFakeValidator(updateRequest);
+        
+        // Fake service provider that returns the fake validator
+        var serviceProvider = GetServiceProviderWithValidator(fakeValidator);
+        
+        var sut = new BookService(_unitOfWork, serviceProvider);
+
         // Act
-        await _sut.UpdateBookAsync(updateRequest);
+        await sut.UpdateBookAsync(updateRequest);
 
         // Assert
         A.CallTo(() => _bookRepository.UpdateBookAsync(A<Book>._)).MustHaveHappenedOnceExactly();
@@ -123,11 +127,21 @@ public class BookServiceTests
     {
         // Arrange
         var updateRequest = _fixture.Create<UpdateBookRequest>();
+
+        // Set up a fake validator to pass validation
+        var fakeValidator = GetFakeValidator(updateRequest);
+
+        // Fake the service provider to return the fake validator
+        var serviceProvider = GetServiceProviderWithValidator(fakeValidator);
+        
+        var sut = new BookService(_unitOfWork, serviceProvider);
+
+        // Simulate repository throwing NotFoundException
         A.CallTo(() => _bookRepository.UpdateBookAsync(A<Book>._))
             .Throws(new NotFoundException(nameof(Book), updateRequest.Id));
 
         // Act
-        var act = async () => await _sut.UpdateBookAsync(updateRequest);
+        var act = async () => await sut.UpdateBookAsync(updateRequest);
 
         // Assert
         await act.Should().ThrowAsync<NotFoundException>();
@@ -160,6 +174,22 @@ public class BookServiceTests
 
         // Assert
         await act.Should().ThrowAsync<NotFoundException>();
+    }
+    
+    private static IValidator<T> GetFakeValidator<T>(T request)
+    {
+        var fakeValidator = A.Fake<IValidator<T>>();
+        A.CallTo(() => fakeValidator.ValidateAsync(request, A<CancellationToken>._))
+            .Returns(new ValidationResult());
+        return fakeValidator;
+    }
+    
+    private static IServiceProvider GetServiceProviderWithValidator<T>(IValidator<T> validator)
+    {
+        var serviceProvider = A.Fake<IServiceProvider>();
+        A.CallTo(() => serviceProvider.GetService(typeof(IValidator<T>)))
+            .Returns(validator);
+        return serviceProvider;
     }
 }
 

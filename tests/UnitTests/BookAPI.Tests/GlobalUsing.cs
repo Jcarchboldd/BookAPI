@@ -9,3 +9,4 @@ global using FakeItEasy;
 global using FluentAssertions;
 global using BookAPI.Exceptions;
 global using FluentValidation;
+global using FluentValidation.TestHelper;

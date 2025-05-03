@@ -27,6 +27,8 @@ public class BookService(IUnitOfWork unitOfWork, IServiceProvider serviceProvide
 
     public async Task UpdateBookAsync(UpdateBookRequest book)
     {
+        await ValidateAsync(book);
+        
         var updatedBook = book.Adapt<Book>();
         await unitOfWork.BookRepository.UpdateBookAsync(updatedBook);
         await unitOfWork.SaveAsync();

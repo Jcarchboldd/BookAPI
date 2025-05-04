@@ -61,7 +61,7 @@ public class BookControllerTests
 
         var result = await _controller.CreateBookAsync(request);
 
-        result.Should().BeOfType<CreatedAtActionResult>()
+        result.Should().BeOfType<CreatedAtRouteResult>()
             .Which.RouteValues?["id"].Should().Be(newId);
     }
 

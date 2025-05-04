@@ -37,7 +37,7 @@ public class BookController(IBookService bookService) : ControllerBase
     /// <response code="200">Returns the requested book</response>
     /// <response code="404">Book not found</response>
     /// <response code="500">Internal server error</response>
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:guid}", Name = nameof(GetBookByIdAsync))]
     [ProducesResponseType(typeof(BookResponse), StatusCodes.Status200OK, "application/json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, "application/problem+json")]
@@ -75,9 +75,8 @@ public class BookController(IBookService bookService) : ControllerBase
     public async Task<IActionResult> CreateBookAsync(CreateBookRequest book)
     {
         var bookId = await bookService.CreateBookAsync(book);
-        var actionName = nameof(GetBookByIdAsync);
-        return CreatedAtAction(
-            actionName,
+        return CreatedAtRoute(
+            nameof(GetBookByIdAsync),
             new { id = bookId },
             new { id = bookId }
         );

@@ -25,10 +25,19 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddValidatorsFromAssemblyContaining<CreateBookRequestValidator>();
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
-builder.Services.AddDbContext<BookDbContext>(options =>
+if (builder.Environment.IsEnvironment("IntegrationTests"))
 {
-    options.UseSqlite(builder.Configuration.GetConnectionString("BooksContext"));
-});
+    builder.Services.AddDbContext<BookDbContext>(options => 
+        options.UseInMemoryDatabase("TestDb"));
+}
+else
+{
+    builder.Services.AddDbContext<BookDbContext>(options =>
+    {
+        options.UseSqlite(builder.Configuration.GetConnectionString("BooksContext"));
+    });
+}
+
 
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IBookService, BookService>();
@@ -43,6 +52,13 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    using (var serviceScope = app.Services.CreateScope())
+    {
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<BookDbContext>();
+        dbContext.Database.Migrate();
+        await SeedData.InitializeAsync(dbContext);
+    }
+    
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -54,3 +70,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

@@ -1,3 +1,4 @@
+using BookAPI.Middleware;
 using BookAPI.Services.Validators.BookValidators;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +23,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
-app.UseExceptionHandler(); 
+app.UseExceptionHandler();
+
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

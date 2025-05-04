@@ -1,5 +1,7 @@
+using System.Reflection;
 using BookAPI.Middleware;
 using BookAPI.Services.Validators.BookValidators;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Book API",
+        Description = "A clean and well-structured API for CRUD operations and reviewing books",
+    });
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
+    
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateBookRequestValidator>();
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
@@ -23,7 +36,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
+app.UseExceptionHandler(options => { }); 
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 

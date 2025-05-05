@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using AutoFixture;
+using AutoFixture.AutoFakeItEasy;
 using BookAPI.Contracts.Books;
 using BookAPI.Infrastructure.Data;
 using FluentAssertions;
@@ -12,6 +14,7 @@ public class BookControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
 {
     private readonly HttpClient _client;
     private readonly BookDbContext _dbContext;
+    private readonly IFixture _fixture;
 
     public BookControllerTests(CustomWebApplicationFactory<Program> factory)
     {
@@ -19,8 +22,9 @@ public class BookControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
         
         var scope = factory.Services.CreateScope();
         _dbContext = scope.ServiceProvider.GetRequiredService<BookDbContext>();
+        _fixture = new Fixture().Customize(new AutoFakeItEasyCustomization { ConfigureMembers = true });
     }
-
+    
     [Fact]
     public async Task GetBooksAsync_ReturnsOk()
     {
@@ -44,7 +48,7 @@ public class BookControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
     public async Task CreateBookAsync_ReturnsCreated()
     {
         // Arrange
-        var request = new CreateBookRequest("Integration Book", "Test Author");
+        var request = _fixture.Create<CreateBookRequest>();
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/book", request);
@@ -66,7 +70,11 @@ public class BookControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
     {
         var book = await _dbContext.Books.FirstAsync();
 
-        var updateRequest = new UpdateBookRequest(book.Id, "Updated Title", "Updated Author");
+        var updateRequest = _fixture
+            .Build<UpdateBookRequest>()
+            .With(x => x.Id, book.Id)
+            .Create();
+        
         var response = await _client.PutAsJsonAsync("/api/book", updateRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);

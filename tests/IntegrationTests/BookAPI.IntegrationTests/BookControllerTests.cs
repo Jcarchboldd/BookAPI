@@ -8,12 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BookAPI.IntegrationTests;
 
-public class BookControllerTests : IClassFixture<CustomWebApplicationFactory>
+public class BookControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
     private readonly BookDbContext _dbContext;
 
-    public BookControllerTests(CustomWebApplicationFactory factory)
+    public BookControllerTests(CustomWebApplicationFactory<Program> factory)
     {
         _client = factory.CreateClient();
         
@@ -48,12 +48,10 @@ public class BookControllerTests : IClassFixture<CustomWebApplicationFactory>
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/book", request);
-
-        // If you didn’t get 201, dump the full ProblemDetails JSON
+        
         if (response.StatusCode != HttpStatusCode.Created)
         {
             var body = await response.Content.ReadAsStringAsync();
-            // Throw an exception so the test output shows the body
             throw new Xunit.Sdk.XunitException(
                 $"Expected 201 Created but got {(int)response.StatusCode}.\n\nResponse body:\n{body}"
             );

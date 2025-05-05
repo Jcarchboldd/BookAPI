@@ -30,18 +30,10 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddValidatorsFromAssemblyContaining<CreateBookRequestValidator>();
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
-if (builder.Environment.IsEnvironment("IntegrationTests"))
+builder.Services.AddDbContext<BookDbContext>(options =>
 {
-    builder.Services.AddDbContext<BookDbContext>(options => 
-        options.UseInMemoryDatabase("TestDb"));
-}
-else
-{
-    builder.Services.AddDbContext<BookDbContext>(options =>
-    {
-        options.UseSqlite(builder.Configuration.GetConnectionString("BooksContext"));
-    });
-}
+    options.UseSqlite(builder.Configuration.GetConnectionString("BooksContext"));
+});
 
 
 builder.Services.AddScoped<IBookRepository, BookRepository>();

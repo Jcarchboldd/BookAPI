@@ -17,7 +17,7 @@ public class CustomWebApplicationFactory<TProgram>
 
         builder.ConfigureServices(services =>
         {
-            // Remove the app's DbContextOptions<BookDbContext> registration (e.g. SQLite file)
+            // Remove the app's DbContextOptions<BookDbContext> registration
             var dbContextDescriptor = services
                 .SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<BookDbContext>));
             if (dbContextDescriptor != null)

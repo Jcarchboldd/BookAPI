@@ -33,7 +33,6 @@
 
 
     <ItemGroup>
-      <Folder Include="Identity\Contracts\" />
       <Folder Include="Identity\Controllers\" />
       <Folder Include="Identity\Data\" />
       <Folder Include="Identity\Repositories\" />

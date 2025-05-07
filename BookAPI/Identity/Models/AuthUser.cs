@@ -2,12 +2,12 @@ namespace BookAPI.Identity.Models;
 
 public class AuthUser
 {
-    public Guid Id { get; private set; }
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
-    public string Email { get; private set; }
-    public string Password { get; private set; }
+    public Guid Id { get; set; }
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string Password { get; set; } = null!;
 
-    public DateTime CreatedDateTime { get; private set; }
-    public DateTime UpdatedDateTime { get; private set; }
+    public DateTime CreatedDateTime { get; set; }
+    public DateTime UpdatedDateTime { get; set; }
 }

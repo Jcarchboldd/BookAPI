@@ -6,7 +6,7 @@ public class AuthUser
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
     public string Email { get; set; } = null!;
-    public string Password { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
 
     public DateTime CreatedDateTime { get; set; }
     public DateTime UpdatedDateTime { get; set; }

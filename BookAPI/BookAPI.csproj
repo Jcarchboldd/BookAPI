@@ -34,7 +34,6 @@
 
     <ItemGroup>
       <Folder Include="Identity\Controllers\" />
-      <Folder Include="Identity\Services\" />
       <Folder Include="Identity\Validators\" />
     </ItemGroup>
     

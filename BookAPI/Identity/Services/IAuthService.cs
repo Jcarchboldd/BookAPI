@@ -5,7 +5,7 @@ namespace BookAPI.Identity.Services;
 
 public interface IAuthService
 {
-    Task<AuthenticationResponse?> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken);
+    Task<Guid> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken);
     
     Task<AuthUser?> AuthenticateAsync(string email, string password, CancellationToken cancellationToken);
 }

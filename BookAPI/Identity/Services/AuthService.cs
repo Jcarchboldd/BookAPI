@@ -10,7 +10,7 @@ public class AuthService(
     IPasswordHasher<AuthUser> hasher,
     IJwtTokenGenerator jwt) : IAuthService
 {
-    public async Task<AuthenticationResponse?> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
+    public async Task<Guid> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
     {
         // Check for duplicate email
         if (await uow.AuthUserRepository.GetUserByEmailAsync(request.Email, cancellationToken) != null)
@@ -30,15 +30,8 @@ public class AuthService(
         await uow.AuthUserRepository.AddAsync(user, cancellationToken);
         await uow.SaveAsync();
 
-        // Issue token
-        var token = jwt.GenerateToken(user);
+        return user.Id;
 
-        return new AuthenticationResponse(
-            user.Id.ToString(),
-            user.FirstName,
-            user.LastName,
-            user.Email,
-            token);
     }
 
     public Task<AuthUser?> AuthenticateAsync(string email, string password, CancellationToken cancellationToken)

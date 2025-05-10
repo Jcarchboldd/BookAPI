@@ -34,8 +34,23 @@ public class AuthService(
 
     }
 
-    public Task<AuthUser?> AuthenticateAsync(string email, string password, CancellationToken cancellationToken)
+    public async Task<AuthenticationResponse?> AuthenticateAsync(LoginRequest request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        // TODO: Create UnauthorizedException class and replace the BadRequestException
+        var user = await uow.AuthUserRepository.GetUserByEmailAsync(request.Email, cancellationToken)
+                   ?? throw new BadRequestException("Invalid credentials.");
+        
+        var result = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+        if (result != PasswordVerificationResult.Success)
+            throw new BadRequestException("Invalid credentials.");
+        
+        var token = jwt.GenerateToken(user);
+        
+        return new AuthenticationResponse(
+            user.Id.ToString(),
+            user.FirstName,
+            user.LastName,
+            user.Email,
+            token);
     }
 }

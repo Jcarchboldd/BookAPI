@@ -7,5 +7,5 @@ public interface IAuthService
 {
     Task<Guid> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken);
     
-    Task<AuthUser?> AuthenticateAsync(string email, string password, CancellationToken cancellationToken);
+    Task<AuthenticationResponse?> AuthenticateAsync(LoginRequest request, CancellationToken cancellationToken);
 }

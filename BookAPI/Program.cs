@@ -1,68 +1,112 @@
 using System.Reflection;
+using System.Text;
+using BookAPI.Identity.Configurations;
+using BookAPI.Identity.Models;
+using BookAPI.Identity.Repositories;
+using BookAPI.Identity.Services;
+using BookAPI.Infrastructure.Services;
 using BookAPI.Middleware;
 using BookAPI.Services.Validators.BookValidators;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// JWT Config
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("JwtSettings"));
+var jwtOpts = builder.Configuration
+    .GetSection("JwtSettings")
+    .Get<JwtSettings>();
+
+// EF Core
+builder.Services.AddDbContext<BookDbContext>(options =>
+    options.UseSqlite(builder.Configuration
+        .GetConnectionString("BooksContext")));
+
+// UnitOfWork + Repos + Services
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IAuthUserRepository, AuthUserRepository>();
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Password hasher + JWT generator + clock
+builder.Services.AddScoped<IPasswordHasher<AuthUser>, PasswordHasher<AuthUser>>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+// Fluent Validation
+builder.Services.AddValidatorsFromAssemblyContaining<CreateBookRequestValidator>();
+
+// Exception handling
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
+// Controllers + API behavior
 builder.Services
     .AddControllers()
     .ConfigureApiBehaviorOptions(opts =>
-    {
-        opts.SuppressModelStateInvalidFilter = true;
-    });;
+        opts.SuppressModelStateInvalidFilter = true);
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddSwaggerGen(opts =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
+    opts.SwaggerDoc("v1", new OpenApiInfo { Title = "Book API", Version = "v1",
+        Description = "A clean and well-structured API for CRUD operations and reviewing books" });
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    opts.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
+});
+
+// JWT Bearer
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(o =>
     {
-        Version = "v1",
-        Title = "Book API",
-        Description = "A clean and well-structured API for CRUD operations and reviewing books",
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer           = true,
+            ValidateAudience         = true,
+            ValidateLifetime         = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer              = jwtOpts!.Issuer,
+            ValidAudience            = jwtOpts.Audience,
+            IssuerSigningKey         = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtOpts.Secret))
+        };
     });
-    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-});
-    
-
-builder.Services.AddValidatorsFromAssemblyContaining<CreateBookRequestValidator>();
-builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-
-builder.Services.AddDbContext<BookDbContext>(options =>
-{
-    options.UseSqlite(builder.Configuration.GetConnectionString("BooksContext"));
-});
-
-
-builder.Services.AddScoped<IBookRepository, BookRepository>();
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseExceptionHandler(options => { }); 
-
-app.UseMiddleware<RequestLoggingMiddleware>();
-
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    using (var serviceScope = app.Services.CreateScope())
-    {
-        var dbContext = serviceScope.ServiceProvider.GetRequiredService<BookDbContext>();
-        dbContext.Database.Migrate();
-        await SeedData.InitializeAsync(dbContext);
-    }
-    
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+// Global error handler (picks up CustomExceptionHandler)
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+// Request logging
+app.UseMiddleware<RequestLoggingMiddleware>();
+
+if (app.Environment.IsDevelopment())
+{
+    // run migrations + seed
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<BookDbContext>();
+    db.Database.Migrate();
+    await SeedData.InitializeAsync(db);
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.MapControllers();
 

@@ -11,3 +11,4 @@ global using Mapster;
 global using BookAPI.Exceptions;
 global using Microsoft.AspNetCore.Diagnostics;
 global using FluentValidation;
+global using BookAPI.Infrastructure.Services;

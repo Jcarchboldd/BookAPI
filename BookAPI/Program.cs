@@ -4,7 +4,6 @@ using BookAPI.Identity.Configurations;
 using BookAPI.Identity.Models;
 using BookAPI.Identity.Repositories;
 using BookAPI.Identity.Services;
-using BookAPI.Infrastructure.Services;
 using BookAPI.Middleware;
 using BookAPI.Services.Validators.BookValidators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -86,7 +85,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 
 // Global error handler (picks up CustomExceptionHandler)
-app.UseExceptionHandler();
+app.UseExceptionHandler(options => { });
 
 app.UseHttpsRedirection();
 

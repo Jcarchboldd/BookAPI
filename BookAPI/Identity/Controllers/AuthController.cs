@@ -3,6 +3,8 @@ using BookAPI.Identity.Services;
 
 namespace BookAPI.Identity.Controllers;
 
+[ApiController]
+[Route("api/auth")]
 public class AuthController(IAuthService authService) : ControllerBase
 {
     /// <summary>

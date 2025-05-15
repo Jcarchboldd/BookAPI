@@ -49,4 +49,36 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
         persisted.LastName   .Should().Be(registerRequest.LastName);
         persisted.PasswordHash.Should().NotBeNullOrWhiteSpace();
     }
+    
+    
+    [Fact]
+    public async Task LoginAsync_WithValidCredentials_ReturnsOkAndJwt()
+    {
+        // Arrange: register a user first
+        var password = _fixture.Create<string>();
+
+        var registerRequest = _fixture.Build<RegisterRequest>()
+            .With(x => x.Password, password)
+            .Create();
+
+        var registerResponse = await _client.PostAsJsonAsync("/api/auth/register", registerRequest);
+        registerResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var loginRequest = new LoginRequest(
+            Email: registerRequest.Email,
+            Password: password
+        );
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<AuthenticationResponse>();
+        result.Should().NotBeNull();
+        result!.Email.Should().Be(loginRequest.Email);
+        result.Token.Should().NotBeNullOrWhiteSpace();
+    }
+    
 }

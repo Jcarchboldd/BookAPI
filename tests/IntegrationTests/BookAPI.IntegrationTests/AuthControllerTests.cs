@@ -44,7 +44,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
         // Assert: user persisted in DB
         var persisted = await _dbContext.AuthUsers.FindAsync(newUserId);
         persisted.Should().NotBeNull();
-        persisted!.Email     .Should().Be(registerRequest.Email);
+        persisted.Email     .Should().Be(registerRequest.Email);
         persisted.FirstName  .Should().Be(registerRequest.FirstName);
         persisted.LastName   .Should().Be(registerRequest.LastName);
         persisted.PasswordHash.Should().NotBeNullOrWhiteSpace();
@@ -77,8 +77,31 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
 
         var result = await response.Content.ReadFromJsonAsync<AuthenticationResponse>();
         result.Should().NotBeNull();
-        result!.Email.Should().Be(loginRequest.Email);
+        result.Email.Should().Be(loginRequest.Email);
         result.Token.Should().NotBeNullOrWhiteSpace();
+    }
+    
+    [Fact]
+    public async Task LoginAsync_InvalidPassword_ReturnsBadRequest()
+    {
+        // Arrange: register successfully
+        var registerReq = _fixture.Create<RegisterRequest>();
+        
+        (await _client.PostAsJsonAsync("/api/auth/register", registerReq))
+            .StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var badLogin = new LoginRequest(
+            Email:    registerReq.Email,
+            Password: registerReq.Password + "_wrong"
+        );
+
+        // Act
+        var resp = await _client.PostAsJsonAsync("/api/auth/login", badLogin);
+
+        // Assert
+        resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        resp.Content.Headers.ContentType!.MediaType
+            .Should().Be("application/problem+json");
     }
     
 }

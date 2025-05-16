@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace BookAPI.Exceptions;
@@ -15,6 +16,8 @@ public class CustomExceptionHandler(
             { typeof(NotFoundException),    (StatusCodes.Status404NotFound,  "Not Found", LogLevel.Information) },
             { typeof(InternalServerException), (StatusCodes.Status500InternalServerError, "Internal Server Error", LogLevel.Error) }
         };
+    
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
@@ -64,7 +67,9 @@ public class CustomExceptionHandler(
                 errorId, context.TraceIdentifier);
         }
 
-        await context.Response.WriteAsJsonAsync(problemDetails, cancellationToken: cancellationToken);
+        var json = JsonSerializer.Serialize(problemDetails, JsonOptions);
+        await context.Response.WriteAsync(json, cancellationToken: cancellationToken);
+        
         return true;
     }
 }

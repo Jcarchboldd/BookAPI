@@ -1,2 +1,2 @@
 # BookAPI
-REST API for book reviews, built with C# and Entity Framework Core. Supports basic CRUD operations for books and reviews with SQLite.
+Book Review REST API built with C# and Entity Framework Core, providing full CRUD operations for managing books and their reviews. Uses SQLite as the database for lightweight and efficient storage.

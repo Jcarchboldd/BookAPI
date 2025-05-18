@@ -50,6 +50,25 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
         persisted.PasswordHash.Should().NotBeNullOrWhiteSpace();
     }
     
+    [Fact]
+    public async Task RegisterAsync_DuplicateEmail_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = _fixture.Create<RegisterRequest>();
+
+        // First call succeeds
+        (await _client.PostAsJsonAsync("/api/auth/register", request))
+            .StatusCode.Should().Be(HttpStatusCode.Created);
+
+        // Act: second call with same email
+        var dup = await _client.PostAsJsonAsync("/api/auth/register", request);
+
+        // Assert
+        dup.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        dup.Content.Headers.ContentType!.MediaType
+            .Should().Be("application/problem+json");
+    }
+    
     
     [Fact]
     public async Task LoginAsync_WithValidCredentials_ReturnsOkAndJwt()

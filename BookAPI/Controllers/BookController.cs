@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+
 namespace BookAPI.Controllers;
 
 [ApiController]
@@ -68,6 +70,7 @@ public class BookController(IBookService bookService) : ControllerBase
     /// <response code="201">Book created successfully.</response>
     /// <response code="400">Validation error or bad request.</response>
     /// <response code="500">Internal server error.</response>
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(object), StatusCodes.Status201Created, "application/json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
@@ -102,6 +105,7 @@ public class BookController(IBookService bookService) : ControllerBase
     /// <response code="400">Validation error or bad request</response>
     /// <response code="404">Book not found</response>
     /// <response code="500">Internal server error</response>
+    [Authorize]
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
@@ -126,6 +130,7 @@ public class BookController(IBookService bookService) : ControllerBase
     /// <response code="204">Book deleted successfully</response>
     /// <response code="404">Book not found</response>
     /// <response code="500">Internal server error</response>
+    [Authorize]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]

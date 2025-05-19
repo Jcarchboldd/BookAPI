@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using AutoFixture;
 using AutoFixture.AutoFakeItEasy;
 using BookAPI.Contracts.Books;
+using BookAPI.Identity.Contracts;
 using BookAPI.Infrastructure.Data;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,8 @@ public class BookControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
     [Fact]
     public async Task CreateBookAsync_ReturnsCreated()
     {
+        await AuthenticateAsync();
+        
         // Arrange
         var request = _fixture.Create<CreateBookRequest>();
 
@@ -68,6 +71,8 @@ public class BookControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
     [Fact]
     public async Task UpdateBookAsync_ReturnsNoContent()
     {
+        await AuthenticateAsync();
+        
         var book = await _dbContext.Books.FirstAsync();
 
         var updateRequest = _fixture
@@ -83,10 +88,34 @@ public class BookControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
     [Fact]
     public async Task DeleteBookAsync_ReturnsNoContent()
     {
+        await AuthenticateAsync();
+        
         var book = await _dbContext.Books.FirstAsync();
         var response = await _client.DeleteAsync($"/api/book/{book.Id}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+    
+    private async Task AuthenticateAsync()
+    {
+        const string password = "MyTestP@ssword!";
+        var registerRequest = _fixture.Build<RegisterRequest>()
+            .With(r => r.Password, password)
+            .Create();
+
+        // Register
+        var regResponse = await _client.PostAsJsonAsync("/api/auth/register", registerRequest);
+        regResponse.EnsureSuccessStatusCode();
+
+        // Login
+        var loginRequest = new LoginRequest(registerRequest.Email, password);
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        loginResponse.EnsureSuccessStatusCode();
+
+        var auth = await loginResponse.Content.ReadFromJsonAsync<AuthenticationResponse>();
+
+        _client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth!.Token);
     }
     
     

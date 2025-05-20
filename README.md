@@ -1,6 +1,6 @@
 # 📚 BookAPI
 
-A modular and testable REST API built with ASP.NET Core 8 for managing books, users, and reviews. Includes JWT authentication, validation and logging.
+A testable and well-structured REST API built with ASP.NET Core 8 for managing books, users, and reviews. Features include JWT authentication, FluentValidation, centralized error handling, and detailed logging.
 
 ---
 

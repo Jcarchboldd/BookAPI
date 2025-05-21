@@ -118,7 +118,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
         var resp = await _client.PostAsJsonAsync("/api/auth/login", badLogin);
 
         // Assert
-        resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        resp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         resp.Content.Headers.ContentType!.MediaType
             .Should().Be("application/problem+json");
     }

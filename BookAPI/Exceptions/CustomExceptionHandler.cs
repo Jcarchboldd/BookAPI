@@ -14,6 +14,7 @@ public class CustomExceptionHandler(
             { typeof(ValidationException), (StatusCodes.Status400BadRequest, "Validation Error", LogLevel.Warning) },
             { typeof(BadRequestException), (StatusCodes.Status400BadRequest, "Bad Request", LogLevel.Warning) },
             { typeof(NotFoundException),    (StatusCodes.Status404NotFound,  "Not Found", LogLevel.Information) },
+            { typeof(UnauthorizedException),       (StatusCodes.Status401Unauthorized, "Unauthorized",   LogLevel.Warning) },
             { typeof(InternalServerException), (StatusCodes.Status500InternalServerError, "Internal Server Error", LogLevel.Error) }
         };
     

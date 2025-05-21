@@ -38,11 +38,11 @@ public class AuthService(
     {
         // TODO: Create UnauthorizedException class and replace the BadRequestException
         var user = await uow.AuthUserRepository.GetUserByEmailAsync(request.Email, cancellationToken)
-                   ?? throw new BadRequestException("Invalid credentials.");
+                   ?? throw new UnauthorizedException("Invalid credentials.");
         
         var result = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
         if (result != PasswordVerificationResult.Success)
-            throw new BadRequestException("Invalid credentials.");
+            throw new UnauthorizedException("Invalid credentials.");
         
         var token = jwt.GenerateToken(user);
         

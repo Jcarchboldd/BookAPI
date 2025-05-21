@@ -116,7 +116,7 @@ public class AuthServiceTests
 
         // Assert
         await act.Should()
-            .ThrowAsync<BadRequestException>()
+            .ThrowAsync<UnauthorizedException>()
             .WithMessage("Invalid credentials.");
     }
     

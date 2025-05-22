@@ -36,7 +36,6 @@ public class AuthService(
 
     public async Task<AuthenticationResponse?> AuthenticateAsync(LoginRequest request, CancellationToken cancellationToken)
     {
-        // TODO: Create UnauthorizedException class and replace the BadRequestException
         var user = await uow.AuthUserRepository.GetUserByEmailAsync(request.Email, cancellationToken)
                    ?? throw new UnauthorizedException("Invalid credentials.");
         

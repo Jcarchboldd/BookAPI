@@ -1,6 +1,7 @@
 namespace BookAPI.Contracts.Reviews;
 
-public class CreateReviewRequest
-{
-    
-}
+public record CreateReviewRequest(
+    string Content,
+    int Rating,
+    Guid BookId,
+    Guid UserId);

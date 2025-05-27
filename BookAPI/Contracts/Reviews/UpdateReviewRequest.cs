@@ -1,6 +1,8 @@
 namespace BookAPI.Contracts.Reviews;
 
-public class UpdateReviewRequest
-{
-    
-}
+public record UpdateReviewRequest(
+    Guid Id,
+    string Content,
+    int Rating,
+    Guid BookId,
+    Guid UserId);

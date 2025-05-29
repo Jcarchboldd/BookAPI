@@ -2,6 +2,8 @@ namespace BookAPI.Services;
 
 public class ReviewService(IUnitOfWork unitOfWork, IServiceProvider serviceProvider) : IReviewService
 {
+    //TODO: Add Validators
+    
     public async Task<IEnumerable<ReviewResponse>> GetAllReviewsAsync()
     {
         var result = await unitOfWork.ReviewRepository.GetAllReviewsAsync();
@@ -9,7 +11,7 @@ public class ReviewService(IUnitOfWork unitOfWork, IServiceProvider serviceProvi
         return result.Adapt<IEnumerable<ReviewResponse>>();
     }
 
-    public async Task<ReviewResponse?> GetReviewAsync(Guid id)
+    public async Task<ReviewResponse?> GetReviewByIdAsync(Guid id)
     {
         var result = await unitOfWork.ReviewRepository.GetReviewByIdAsync(id);
         

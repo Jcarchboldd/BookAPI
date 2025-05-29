@@ -1,0 +1,61 @@
+using BookAPI.Contracts.Reviews;
+
+namespace BookAPI.Tests;
+
+public class ReviewServiceTests
+{
+    private readonly IFixture _fixture;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IReviewRepository _reviewRepository;
+    private readonly ReviewService _sut;
+
+    public ReviewServiceTests()
+    {
+        _fixture = new Fixture().Customize(new AutoFakeItEasyCustomization {ConfigureMembers = true});
+        
+        _fixture.Behaviors
+            .OfType<ThrowingRecursionBehavior>()
+            .ToList()
+            .ForEach(b => _fixture.Behaviors.Remove(b));
+        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+        _unitOfWork = A.Fake<IUnitOfWork>();
+        _reviewRepository = A.Fake<IReviewRepository>();
+        var serviceProvider = A.Fake<IServiceProvider>();
+
+        A.CallTo(() => _unitOfWork.ReviewRepository).Returns(_reviewRepository);
+
+        _sut = new ReviewService(_unitOfWork, serviceProvider);
+    }
+    
+    [Fact]
+    public async Task GetAllReviewsAsync_ReturnsMappedReviews()
+    {
+        // Arrange
+        var reviews = _fixture.CreateMany<Review>(3).ToList();
+        A.CallTo(() => _reviewRepository.GetAllReviewsAsync()).Returns(reviews);
+
+        // Act
+        var result = (await _sut.GetAllReviewsAsync()).ToList();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveSameCount(reviews);
+        result.Should().AllBeOfType<ReviewResponse>();
+    }
+    
+    [Fact]
+    public async Task GetBookByIdAsync_WithValidId_ReturnsBook()
+    {
+        // Arrange
+        var review = _fixture.Create<Review>();
+        A.CallTo(() => _reviewRepository.GetReviewByIdAsync(review.Id)).Returns(review);
+
+        // Act
+        var result = await _sut.GetReviewByIdAsync(review.Id);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().Be(review.Id);
+    }
+}

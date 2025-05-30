@@ -16,7 +16,7 @@ public class BookService(IUnitOfWork unitOfWork, IServiceProvider serviceProvide
 
     public async Task<Guid> CreateBookAsync(CreateBookRequest book)
     {
-        await ValidateAsync(book);
+        await ValidationHandler.ValidateAsync(book, serviceProvider);
         
         var newBook = book.Adapt<Book>();
         await unitOfWork.BookRepository.CreateBookAsync(newBook);
@@ -27,7 +27,7 @@ public class BookService(IUnitOfWork unitOfWork, IServiceProvider serviceProvide
 
     public async Task UpdateBookAsync(UpdateBookRequest book)
     {
-        await ValidateAsync(book);
+        await ValidationHandler.ValidateAsync(book, serviceProvider);
         
         var updatedBook = book.Adapt<Book>();
         await unitOfWork.BookRepository.UpdateBookAsync(updatedBook);
@@ -38,22 +38,5 @@ public class BookService(IUnitOfWork unitOfWork, IServiceProvider serviceProvide
     {
         await unitOfWork.BookRepository.DeleteBookAsync(id);
         await unitOfWork.SaveAsync();
-    }
-    
-    private async Task ValidateAsync<T>(T request)
-    {
-        var validator = serviceProvider.GetService<IValidator<T>>();
-        if (validator is null)
-        {
-            throw new InternalServerException(
-                $"Missing validator for type {typeof(T).Name}",
-                $"Validator of type IValidator<{typeof(T).Name}> was not registered in the DI container.");
-        }
-
-        var result = await validator.ValidateAsync(request);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
     }
 }

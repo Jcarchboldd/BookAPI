@@ -12,3 +12,4 @@ global using BookAPI.Exceptions;
 global using Microsoft.AspNetCore.Diagnostics;
 global using FluentValidation;
 global using BookAPI.Infrastructure.Services;
+global using BookAPI.Services.Validators;

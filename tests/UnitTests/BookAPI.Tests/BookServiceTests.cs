@@ -1,4 +1,4 @@
-using FluentValidation.Results;
+using BookAPI.Tests.Utilities;
 
 namespace BookAPI.Tests;
 
@@ -80,10 +80,10 @@ public class BookServiceTests
         var createRequest = _fixture.Create<CreateBookRequest>();
 
         // Properly typed fake validator
-        var fakeValidator = GetFakeValidator(createRequest);
+        var fakeValidator = FakeValidator.GetFakeValidator(createRequest);
         
         // Return the correct type
-        var serviceProvider = GetServiceProviderWithValidator(fakeValidator);
+        var serviceProvider = FakeValidator.GetServiceProviderWithValidator(fakeValidator);
         
         var sut = new BookService(_unitOfWork, serviceProvider);
 
@@ -107,10 +107,10 @@ public class BookServiceTests
         var updateRequest = _fixture.Create<UpdateBookRequest>();
 
         // Fake validator for UpdateBookRequest
-        var fakeValidator = GetFakeValidator(updateRequest);
+        var fakeValidator = FakeValidator.GetFakeValidator(updateRequest);
         
         // Fake service provider that returns the fake validator
-        var serviceProvider = GetServiceProviderWithValidator(fakeValidator);
+        var serviceProvider = FakeValidator.GetServiceProviderWithValidator(fakeValidator);
         
         var sut = new BookService(_unitOfWork, serviceProvider);
 
@@ -129,10 +129,10 @@ public class BookServiceTests
         var updateRequest = _fixture.Create<UpdateBookRequest>();
 
         // Set up a fake validator to pass validation
-        var fakeValidator = GetFakeValidator(updateRequest);
+        var fakeValidator = FakeValidator.GetFakeValidator(updateRequest);
 
         // Fake the service provider to return the fake validator
-        var serviceProvider = GetServiceProviderWithValidator(fakeValidator);
+        var serviceProvider = FakeValidator.GetServiceProviderWithValidator(fakeValidator);
         
         var sut = new BookService(_unitOfWork, serviceProvider);
 
@@ -176,20 +176,5 @@ public class BookServiceTests
         await act.Should().ThrowAsync<NotFoundException>();
     }
     
-    private static IValidator<T> GetFakeValidator<T>(T request)
-    {
-        var fakeValidator = A.Fake<IValidator<T>>();
-        A.CallTo(() => fakeValidator.ValidateAsync(request, A<CancellationToken>._))
-            .Returns(new ValidationResult());
-        return fakeValidator;
-    }
-    
-    private static IServiceProvider GetServiceProviderWithValidator<T>(IValidator<T> validator)
-    {
-        var serviceProvider = A.Fake<IServiceProvider>();
-        A.CallTo(() => serviceProvider.GetService(typeof(IValidator<T>)))
-            .Returns(validator);
-        return serviceProvider;
-    }
 }
 

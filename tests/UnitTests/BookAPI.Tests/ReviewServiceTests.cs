@@ -1,4 +1,5 @@
 using BookAPI.Contracts.Reviews;
+using BookAPI.Tests.Utilities;
 
 namespace BookAPI.Tests;
 
@@ -57,5 +58,32 @@ public class ReviewServiceTests
         // Assert
         result.Should().NotBeNull();
         result.Id.Should().Be(review.Id);
+    }
+    
+    [Fact]
+    public async Task CreateReviewAsync_CreatesReviewAndReturnsId()
+    {
+        // Arrange
+        var createRequest = _fixture.Create<CreateReviewRequest>();
+
+        // Properly typed fake validator
+        var fakeValidator = FakeValidator.GetFakeValidator(createRequest);
+        
+        // Return the correct type
+        var serviceProvider = FakeValidator.GetServiceProviderWithValidator(fakeValidator);
+        
+        var sut = new ReviewService(_unitOfWork, serviceProvider);
+
+        A.CallTo(() => _reviewRepository.CreateReviewAsync(A<Review>._))
+            .Invokes((Review review) => review.Id = Guid.NewGuid())
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await sut.CreateReviewAsync(createRequest);
+
+        // Assert
+        result.Should().NotBeEmpty();
+        A.CallTo(() => _reviewRepository.CreateReviewAsync(A<Review>._)).MustHaveHappenedOnceExactly();
+        A.CallTo(() => _unitOfWork.SaveAsync()).MustHaveHappenedOnceExactly();
     }
 }

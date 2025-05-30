@@ -10,3 +10,4 @@ global using FluentAssertions;
 global using BookAPI.Exceptions;
 global using FluentValidation;
 global using FluentValidation.TestHelper;
+global using FluentValidation.Results;

@@ -86,4 +86,26 @@ public class ReviewServiceTests
         A.CallTo(() => _reviewRepository.CreateReviewAsync(A<Review>._)).MustHaveHappenedOnceExactly();
         A.CallTo(() => _unitOfWork.SaveAsync()).MustHaveHappenedOnceExactly();
     }
+    
+    [Fact]
+    public async Task UpdateReviewAsync_UpdatesReviewAndSaves()
+    {
+        // Arrange
+        var updateRequest = _fixture.Create<UpdateReviewRequest>();
+
+        // Fake validator for UpdateReviewRequest
+        var fakeValidator = FakeValidator.GetFakeValidator(updateRequest);
+        
+        // Fake service provider that returns the fake validator
+        var serviceProvider = FakeValidator.GetServiceProviderWithValidator(fakeValidator);
+        
+        var sut = new ReviewService(_unitOfWork, serviceProvider);
+
+        // Act
+        await sut.UpdateReviewAsync(updateRequest);
+
+        // Assert
+        A.CallTo(() => _reviewRepository.UpdateReviewAsync(A<Review>._)).MustHaveHappenedOnceExactly();
+        A.CallTo(() => _unitOfWork.SaveAsync()).MustHaveHappenedOnceExactly();
+    }
 }

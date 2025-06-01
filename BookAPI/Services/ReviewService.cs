@@ -38,5 +38,6 @@ public class ReviewService(IUnitOfWork unitOfWork, IServiceProvider serviceProvi
     public async Task DeleteReviewAsync(Guid id)
     {
         await unitOfWork.ReviewRepository.DeleteReviewAsync(id);
+        await unitOfWork.SaveAsync();
     }
 }

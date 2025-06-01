@@ -46,7 +46,7 @@ public class ReviewServiceTests
     }
     
     [Fact]
-    public async Task GetBookByIdAsync_WithValidId_ReturnsBook()
+    public async Task GetReviewByIdAsync_WithValidId_ReturnsReview()
     {
         // Arrange
         var review = _fixture.Create<Review>();
@@ -107,5 +107,59 @@ public class ReviewServiceTests
         // Assert
         A.CallTo(() => _reviewRepository.UpdateReviewAsync(A<Review>._)).MustHaveHappenedOnceExactly();
         A.CallTo(() => _unitOfWork.SaveAsync()).MustHaveHappenedOnceExactly();
+    }
+    
+    [Fact]
+    public async Task UpdateReviewAsync_ReviewNotFound_ThrowsNotFoundException()
+    {
+        // Arrange
+        var updateRequest = _fixture.Create<UpdateReviewRequest>();
+
+        // Set up a fake validator to pass validation
+        var fakeValidator = FakeValidator.GetFakeValidator(updateRequest);
+
+        // Fake the service provider to return the fake validator
+        var serviceProvider = FakeValidator.GetServiceProviderWithValidator(fakeValidator);
+        
+        var sut = new ReviewService(_unitOfWork, serviceProvider);
+
+        // Simulate repository throwing NotFoundException
+        A.CallTo(() => _reviewRepository.UpdateReviewAsync(A<Review>._))
+            .Throws(new NotFoundException(nameof(Book), updateRequest.Id));
+
+        // Act
+        var act = async () => await sut.UpdateReviewAsync(updateRequest);
+
+        // Assert
+        await act.Should().ThrowAsync<NotFoundException>();
+    }
+    
+    [Fact]
+    public async Task DeleteReviewAsync_DeletesReviewAndSaves()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+
+        // Act
+        await _sut.DeleteReviewAsync(id);
+
+        // Assert
+        A.CallTo(() => _reviewRepository.DeleteReviewAsync(id)).MustHaveHappenedOnceExactly();
+        A.CallTo(() => _unitOfWork.SaveAsync()).MustHaveHappenedOnceExactly();
+    }
+    
+    [Fact]
+    public async Task DeleteReviewAsync_ReviewNotFound_ThrowsNotFoundException()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        A.CallTo(() => _reviewRepository.DeleteReviewAsync(id))
+            .Throws(new NotFoundException(nameof(Review), id));
+
+        // Act
+        var act = async () => await _sut.DeleteReviewAsync(id);
+
+        // Assert
+        await act.Should().ThrowAsync<NotFoundException>();
     }
 }

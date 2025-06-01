@@ -39,9 +39,8 @@ tests/
 ## 🚀 Running the App
 
 ```bash
-dotnet build
-dotnet ef database update
-dotnet run
+dotnet run --project ./BookAPI
+
 ```
 
 Swagger UI: [http://localhost:5177/swagger/index.html](http://localhost:5177/swagger/index.html)

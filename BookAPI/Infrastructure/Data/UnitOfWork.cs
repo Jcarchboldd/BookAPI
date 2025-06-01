@@ -18,6 +18,4 @@ public class UnitOfWork(BookDbContext context, IDateTimeProvider dateTimeProvide
         await context.SaveChangesAsync();
     }
     
-    // TODO: Check if the Dispose method is required 
-    public void Dispose() => context.Dispose();
 }

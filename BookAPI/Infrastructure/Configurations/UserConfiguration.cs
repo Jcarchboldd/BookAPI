@@ -8,7 +8,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         
         builder.HasKey(u => u.Id);
         
-        builder.Property(u => u.Username)
+        builder.Property(u => u.UserName)
             .IsRequired()
             .HasMaxLength(50);
 
@@ -20,6 +20,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(u => u.Username).IsUnique();
+        builder.HasIndex(u => u.UserName).IsUnique();
     }
 }

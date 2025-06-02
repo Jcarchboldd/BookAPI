@@ -8,8 +8,8 @@ public static class SeedData
 
         var users = new List<User>
         {
-            new() { Id = Guid.NewGuid(), Username = "jane_doe", IsVerified = true },
-            new() { Id = Guid.NewGuid(), Username = "john_smith", IsVerified = false }
+            new() { Id = Guid.NewGuid(), UserName = "jane_doe", IsVerified = true },
+            new() { Id = Guid.NewGuid(), UserName = "john_smith", IsVerified = false }
         };
 
         var books = new List<Book>

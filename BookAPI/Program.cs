@@ -5,6 +5,7 @@ using BookAPI.Identity.Models;
 using BookAPI.Identity.Repositories;
 using BookAPI.Identity.Services;
 using BookAPI.Middleware;
+using BookAPI.Services.Mapster;
 using BookAPI.Services.Validators.BookValidators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -107,6 +108,9 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// Mapster
+MapsterConfig.RegisterMappings();
 
 // Global error handler (picks up CustomExceptionHandler)
 app.UseExceptionHandler(options => { });

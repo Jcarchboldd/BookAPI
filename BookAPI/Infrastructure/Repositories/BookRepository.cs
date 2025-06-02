@@ -6,6 +6,7 @@ public class BookRepository(BookDbContext context) : IBookRepository
     {
         return await context.Books
             .Include(b => b.Reviews)
+            .ThenInclude(r => r.User)
             .ToListAsync();
     }
 
@@ -13,6 +14,7 @@ public class BookRepository(BookDbContext context) : IBookRepository
     {
         return await context.Books
             .Include(b => b.Reviews)
+            .ThenInclude(r => r.User)
             .FirstOrDefaultAsync(b => b.Id == id);
             
     }

@@ -29,7 +29,7 @@ public class CustomExceptionHandler(
             : (StatusCodes.Status500InternalServerError, "Internal Server Error", LogLevel.Error);
 
         // Use the exception message if safe, otherwise use a fallback
-        var detail = exception is ValidationException or BadRequestException or NotFoundException
+        var detail = exception is not InternalServerException
             ? exception.Message
             : "An unexpected error occurred. Please try again later.";
 

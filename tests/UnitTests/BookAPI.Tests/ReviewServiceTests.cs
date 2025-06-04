@@ -33,11 +33,12 @@ public class ReviewServiceTests
     public async Task GetAllReviewsAsync_ReturnsMappedReviews()
     {
         // Arrange
+        var bookId = _fixture.Create<Guid>();
         var reviews = _fixture.CreateMany<Review>(3).ToList();
-        A.CallTo(() => _reviewRepository.GetAllReviewsAsync()).Returns(reviews);
+        A.CallTo(() => _reviewRepository.GetBookReviewsAsync(bookId)).Returns(reviews);
 
         // Act
-        var result = (await _sut.GetAllReviewsAsync()).ToList();
+        var result = (await _sut.GetAllReviewsAsync(bookId)).ToList();
 
         // Assert
         result.Should().NotBeNull();

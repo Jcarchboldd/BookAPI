@@ -2,10 +2,12 @@ namespace BookAPI.Infrastructure.Repositories;
 
 public class ReviewRepository(BookDbContext bookDbContext) : IReviewRepository
 {
-    public async Task<IEnumerable<Review>> GetAllReviewsAsync()
+    public async Task<IEnumerable<Review>> GetBookReviewsAsync(Guid bookId)
     {
         return await bookDbContext.Reviews
             .Include(i => i.Book)
+            .Include(i => i.User)
+            .Where(w => w.Book.Id.Equals(bookId))
             .ToListAsync();
     }
 
@@ -13,6 +15,7 @@ public class ReviewRepository(BookDbContext bookDbContext) : IReviewRepository
     {
         return bookDbContext.Reviews
             .Include(i => i.Book)
+            .Include(i => i.User)
             .FirstOrDefaultAsync(i => i.Id == id);
     }
 

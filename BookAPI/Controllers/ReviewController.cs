@@ -22,4 +22,14 @@ public class ReviewController(IReviewService reviewService) : ControllerBase
         }
         return Ok(result);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateReviewAsync(CreateReviewRequest request)
+    {
+        var bookId = await reviewService.CreateReviewAsync(request);
+        return CreatedAtRoute(
+            nameof(GetReviewByIdAsync),
+            new { bookId = bookId },
+            new { id = bookId });
+    }
 }

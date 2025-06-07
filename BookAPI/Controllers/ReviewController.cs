@@ -32,4 +32,11 @@ public class ReviewController(IReviewService reviewService) : ControllerBase
             new { id = bookId },
             new { id = bookId });
     }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateReviewAsync(UpdateReviewRequest request)
+    {
+        await reviewService.UpdateReviewAsync(request);
+        return NoContent();
+    }
 }

@@ -52,11 +52,11 @@ public class AuthController(IAuthService authService) : ControllerBase
     ///     }
     /// </remarks>
     /// <response code="200">Authentication successful.</response>
-    /// <response code="400">Invalid credentials.</response>
+    /// <response code="401">Invalid credentials.</response>
     /// <response code="500">Internal server error.</response>
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthenticationResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request)
     {

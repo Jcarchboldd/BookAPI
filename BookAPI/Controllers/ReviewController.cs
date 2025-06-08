@@ -26,11 +26,11 @@ public class ReviewController(IReviewService reviewService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateReviewAsync(CreateReviewRequest request)
     {
-        var bookId = await reviewService.CreateReviewAsync(request);
+        var reviewId = await reviewService.CreateReviewAsync(request);
         return CreatedAtRoute(
             nameof(GetReviewByIdAsync),
-            new { id = bookId },
-            new { id = bookId });
+            new { reviewId },
+            new { id = reviewId });
     }
 
     [HttpPut]

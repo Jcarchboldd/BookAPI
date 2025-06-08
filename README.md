@@ -59,12 +59,14 @@ dotnet test
 
 ## 🔐 Authentication
 
-JWT-based authentication is enabled. After registering via `/api/auth/register`, you can log in at `/api/auth/login` to receive a token.  
+JWT-based authentication is enabled. After registering via `/api/auth/register`, you can log in at `/api/auth/login` to receive a token.
 Include the token in requests:
 
 ```http
 Authorization: Bearer {token}
 ```
+
+Creating, updating, or deleting books and reviews requires authentication.
 
 ---
 

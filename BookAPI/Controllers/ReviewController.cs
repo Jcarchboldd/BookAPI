@@ -25,6 +25,7 @@ public class ReviewController(IReviewService reviewService) : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateReviewAsync(CreateReviewRequest request)
     {
@@ -35,6 +36,7 @@ public class ReviewController(IReviewService reviewService) : ControllerBase
             new { id = reviewId });
     }
 
+    [Authorize]
     [HttpPut]
     public async Task<IActionResult> UpdateReviewAsync(UpdateReviewRequest request)
     {

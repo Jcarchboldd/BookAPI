@@ -51,11 +51,14 @@ public class ReviewControllerTests : IClassFixture<CustomWebApplicationFactory<P
     {
         await AuthenticateAsync();
 
+        var content = _fixture.Create<string>();
         var book = await _dbContext.Books.FirstAsync();
         var user = await _dbContext.Users.FirstAsync();
         var request = _fixture.Build<CreateReviewRequest>()
             .With(r => r.BookId, book.Id)
             .With(r => r.UserId, user.Id)
+            .With(r => r.Rating, 5)
+            .With(r => r.Content, content)
             .Create();
 
         var response = await _client.PostAsJsonAsync("/api/review", request);
@@ -80,6 +83,7 @@ public class ReviewControllerTests : IClassFixture<CustomWebApplicationFactory<P
             .With(r => r.Id, review.Id)
             .With(r => r.BookId, review.BookId)
             .With(r => r.UserId, review.UserId)
+            .With(r => r.Rating, review.Rating)
             .Create();
 
         var response = await _client.PutAsJsonAsync("/api/review", updateRequest);

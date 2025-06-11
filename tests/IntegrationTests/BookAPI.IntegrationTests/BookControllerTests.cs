@@ -83,6 +83,11 @@ public class BookControllerTests : IClassFixture<CustomWebApplicationFactory<Pro
         var response = await _client.PutAsJsonAsync("/api/book", updateRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        await _dbContext.Entry(book).ReloadAsync();
+
+        book.Title.Should().Be(updateRequest.Title);
+        book.Author.Should().Be(updateRequest.Author);
     }
     
     [Fact]

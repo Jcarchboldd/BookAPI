@@ -35,5 +35,10 @@ public class AuthUserConfiguration : IEntityTypeConfiguration<AuthUser>
         builder.Property(u => u.UpdatedDateTime)
             .IsRequired();
 
+        builder.HasOne(au => au.User)
+            .WithOne(u => u.AuthUser)
+            .HasForeignKey<User>(u => u.AuthUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

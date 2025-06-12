@@ -1,3 +1,5 @@
+using BookAPI.Infrastructure.Models;
+
 namespace BookAPI.Identity.Models;
 
 public class AuthUser
@@ -10,4 +12,6 @@ public class AuthUser
 
     public DateTime CreatedDateTime { get; set; }
     public DateTime UpdatedDateTime { get; set; }
+
+    public User? User { get; set; }
 }

@@ -29,7 +29,7 @@ public class ReviewRepository(BookDbContext bookDbContext) : IReviewRepository
         var existingReview = await bookDbContext.Reviews.FindAsync(review.Id);
         if (existingReview == null)
         {
-            throw new NotFoundException(nameof(review), review.Id); 
+            throw new NotFoundException(nameof(Review), review.Id);
         }
         
         bookDbContext.Entry(existingReview).CurrentValues.SetValues(review);
@@ -40,7 +40,7 @@ public class ReviewRepository(BookDbContext bookDbContext) : IReviewRepository
         var reviewToDelete = await bookDbContext.Reviews.FindAsync(id);
         if (reviewToDelete == null)
         {
-            throw new NotFoundException(nameof(reviewToDelete), id);
+            throw new NotFoundException(nameof(Review), id);
         }
         bookDbContext.Reviews.Remove(reviewToDelete);
     }

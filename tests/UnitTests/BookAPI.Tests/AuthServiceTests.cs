@@ -9,16 +9,21 @@ namespace BookAPI.Tests;
 
 public class AuthServiceTests
 {
-    private readonly IFixture                    _fixture;
-    private readonly IUnitOfWork                 _uow;
-    private readonly IAuthUserRepository         _userRepo;
-    private readonly IPasswordHasher<AuthUser>   _hasher;
-    private readonly IJwtTokenGenerator          _jwt;
-    private readonly AuthService                 _sut;
+    private readonly IFixture _fixture;
+    private readonly IUnitOfWork _uow;
+    private readonly IAuthUserRepository _userRepo;
+    private readonly IPasswordHasher<AuthUser> _hasher;
+    private readonly IJwtTokenGenerator _jwt;
+    private readonly AuthService _sut;
     
     public AuthServiceTests()
     {
-        _fixture = new Fixture();
+        _fixture = new Fixture().Customize(new AutoFakeItEasyCustomization { ConfigureMembers = true });
+        _fixture.Behaviors
+            .OfType<ThrowingRecursionBehavior>()
+            .ToList()
+            .ForEach(b => _fixture.Behaviors.Remove(b));
+        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         
         _userRepo = A.Fake<IAuthUserRepository>();
         _uow      = A.Fake<IUnitOfWork>();
